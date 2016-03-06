@@ -49,6 +49,8 @@
 	var DEFAULT_EASING = 'linear';
 	var DEFAULT_DURATION = 1000;//ms
 	var DEFAULT_MOBILE_DECELERATION = 0.004;//pixel/ms²
+	var DEFAULT_TOUCHMOVE_MIN_DELAY = 0;
+
 
 	var DEFAULT_SKROLLRBODY = 'skrollr-body';
 
@@ -264,6 +266,8 @@
 		}
 
 		_mobileDeceleration = options.mobileDeceleration || DEFAULT_MOBILE_DECELERATION;
+
+		_touchmove_min_delay = options.touchmoveMinDelay || DEFAULT_TOUCHMOVE_MIN_DELAY;
 
 		_smoothScrollingEnabled = options.smoothScrolling !== false;
 		_smoothScrollingDuration = options.smoothScrollingDuration || DEFAULT_SMOOTH_SCROLLING_DURATION;
@@ -676,6 +680,7 @@
 		_scale = 1;
 		_constants = undefined;
 		_mobileDeceleration = undefined;
+		_touchmove_min_delay = 0;
 		_direction = 'down';
 		_lastTop = -1;
 		_lastViewportWidth = 0;
@@ -743,7 +748,7 @@
 
 					initialTouchY = lastTouchY = currentTouchY;
 					initialTouchX = currentTouchX;
-					initialTouchTime = currentTouchTime;
+					initialTouchTime = lastTouchTime = currentTouchTime;
 
 					break;
 				case EVENT_TOUCHMOVE:
@@ -753,12 +758,14 @@
 					}
 
 					deltaY = currentTouchY - lastTouchY;
-					deltaTime = currentTouchTime - lastTouchTime;
+					deltaTime = (currentTouchTime - lastTouchTime);
 
-					_instance.setScrollTop(_mobileOffset - deltaY, true);
+					if(deltaTime > _touchmove_min_delay){
+						_instance.setScrollTop(_mobileOffset - deltaY, true);
 
-					lastTouchY = currentTouchY;
-					lastTouchTime = currentTouchTime;
+						lastTouchY = currentTouchY;
+						lastTouchTime = currentTouchTime;
+					}
 					break;
 				default:
 				case EVENT_TOUCHCANCEL:
@@ -1715,6 +1722,8 @@
 	var _constants;
 
 	var _mobileDeceleration;
+
+	var _touchmove_min_delay;
 
 	//Current direction (up/down).
 	var _direction = 'down';
